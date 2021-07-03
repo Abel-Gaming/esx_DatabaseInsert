@@ -29,51 +29,39 @@ AddEventHandler('esx_DatabaseInsert:InsertVehicle', function(ownerID, closestVeh
 end)
 
 RegisterServerEvent('esx_DatabaseInsert:StoreVehicle')
-AddEventHandler('esx_DatabaseInsert:StoreVehicle', function(closestVehiclePlate, closestVehicleProperties, closestVehicleHash, closestVehicleName, fuelLevel)
+AddEventHandler('esx_DatabaseInsert:StoreVehicle', function(closestVehiclePlate, closestVehicleProperties, closestVehicleHash, closestVehicleName, fuelLevel, closestVehicle)
     local xPlayer = ESX.GetPlayerFromId(source)
 
-    local plate = closestVehiclePlate
-    local fuel = fuelLevel
-    local vehicle = json.encode(closestVehicleProperties)
+    -- Print to server log
+    if Config.EnableDebug then
+    print('Attempting to store plate with the following conditions')
+    print('Vehicle: ' .. json.encode(closestVehicleProperties))
+    print('Identifier: ' .. xPlayer.identifier)
+    print('Plate: ' .. closestVehiclePlate)
+    print('Garage: Housing Garage')
+    print('State: 1')
+    end
 
-    xPlayer.showNotification('Vehicle stored')
+    -- Show the player a notification
+    xPlayer.showNotification('Vehicle: ~y~' .. closestVehicleName .. ' ~w~has been stored!')
 
-    MySQL.Sync.execute("UPDATE owned_vehicles SET vehicle = @vehicle, garage = @garage, fuel = @fuel, state = @state WHERE owner = @identifier AND plate = @plate", {
-        ['@vehicle'] = vehicle,
-        ['@identifier'] = xPlayer.getIdentifier(),
-        ['@plate'] = plate,
-        ['@garage'] = 'Housing Garage',
+    -- Update the database
+    MySQL.Sync.execute('UPDATE owned_vehicles SET vehicle = @vehicle, garage = @garage, fuel = @fuel, state = @state WHERE owner = @identifier AND plate = @plate', {
+        ['@vehicle'] = json.encode(closestVehicleProperties),
+        ['@identifier'] = xPlayer.identifier,
+        ['@plate'] = closestVehiclePlate,
+        ['@garage'] = "Housing Garage",
         ['@state'] = 1
-    }, function(result2)
+    }, function(afterinsert)
         
     end)
+
+    -- Trigger Event to delete vehicle
+    TriggerClientEvent('esx_DatabaseInsert:DeleteVehicle', -1, closestVehicle)
 end)
-
---[[
-ESX.RegisterServerCallback('esx_DatabaseInsert:StoreVehicle', function(source, cb, closestVehiclePlate, closestVehicleProperties, closestVehicleHash, closestVehicleName, fuelLevel)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local xPlayerIdentifier = xPlayer.getIdentifier()
-
-    local plate = closestVehiclePlate
-    local fuel = fuelLevel
-    local vehicle = json.encode(closestVehicleProperties)
-
-    MySQL.Sync.execute("UPDATE owned_vehicles SET vehicle = @vehicle, garage = @garage, fuel = @fuel, state = @state WHERE owner = @identifier AND plate = @plate", {
-        ['@vehicle'] = vehicle,
-        ['@identifier'] = xPlayer.getIdentifier(),
-        ['@plate'] = plate,
-        ['@garage'] = 'Housing Garage',
-        ['@fuel'] = fuel,
-        ['@state'] = 1
-    }, function(result2)
-        xPlayer.showNotification('Vehicle stored')
-    end)
-end)
-]]
 
 ESX.RegisterServerCallback('esx_DatabaseInsert:DoesPlayerOwnVehicle', function(source, cb, plate)
     local xPlayer = ESX.GetPlayerFromId(source)
-	
     MySQL.Async.fetchAll('SELECT owner FROM owned_vehicles WHERE plate = @plate', {
 		['@plate'] = plate
 	}, function(result)

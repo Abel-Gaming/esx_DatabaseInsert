@@ -40,7 +40,7 @@ function StoreTrailer()
 		local fuelLevel = GetVehicleFuelLevel(closestVehicle)
 		ESX.TriggerServerCallback('esx_DatabaseInsert:DoesPlayerOwnVehicle', function(ownVehicle)
 			if ownVehicle then
-				TriggerServerEvent('esx_DatabaseInsert:StoreVehicle', closestVehiclePlate, closestVehicleProperties, closestVehicleHash, closestVehicleName, fuelLevel)
+				TriggerServerEvent('esx_DatabaseInsert:StoreVehicle', closestVehiclePlate, closestVehicleProperties, closestVehicleHash, closestVehicleName, fuelLevel, closestVehicle)
 			else
 				ESX.ShowNotification('~r~[ERROR]~w~ You do not own that vehicle!')
 			end
@@ -65,3 +65,8 @@ function InsertVehicle(ownerID)
 		ESX.ShowHelpNotification('~r~[ERROR]~w~ No nearby vehicle')
 	end
 end
+
+RegisterNetEvent('esx_DatabaseInsert:DeleteVehicle')
+AddEventHandler('esx_DatabaseInsert:DeleteVehicle', function(vehicle)
+	DeleteVehicle(vehicle)
+end)

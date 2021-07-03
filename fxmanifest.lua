@@ -1,6 +1,6 @@
 fx_version 'bodacious'
 game 'gta5'
-description 'ESX Database Insert - easily insert vehicles to database'
+description 'ESX Database Insert - Easily insert vehicles & trailers to database'
 author 'Abel Gaming'
 version '1.0'
 

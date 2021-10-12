@@ -1,4 +1,4 @@
-fx_version 'bodacious'
+fx_version 'cerulean'
 game 'gta5'
 description 'ESX Database Insert - Easily insert vehicles & trailers to database'
 author 'Abel Gaming'
